@@ -1,0 +1,140 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "adstudio",
+  "version": "1.1.6",
+  "description": "Advertising reporting and analysis for the Google Ads, Meta Ads and TikTok Ads accounts you connect in Adstudio, with the source behind every number.",
+  "author": {
+    "name": "ENES OZTURK LTD",
+    "email": "contact@useadstudio.com",
+    "url": "https://useadstudio.com"
+  },
+  "homepage": "https://useadstudio.com",
+  "license": "UNLICENSED",
+  "keywords": [
+    "advertising",
+    "google-ads",
+    "meta-ads",
+    "tiktok-ads",
+    "ppc",
+    "marketing",
+    "analytics",
+    "reporting"
+  ],
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "Adstudio",
+        "shortDescription": "Ask your ad accounts anything",
+        "longDescription": "Adstudio is advertising reporting and analysis inside ChatGPT. Ask for the numbers from the Google Ads, Meta Ads and TikTok Ads accounts you connect in Adstudio \u2014 spend, conversions, campaign structure and creatives \u2014 instead of opening each ads manager and rebuilding the same export.\n\nBuilt for marketers, agencies, media buyers and growth teams who compare channels and investigate changes without opening each ads manager.\n\nWhat you can ask\n- \"How did my Google Ads campaigns perform last week compared with the week before?\"\n- \"Why did the CPA of my Brand Search campaign go up in the last 14 days?\"\n- \"Which Meta campaigns spent budget without converting this month?\"\n- \"Rank the ads in my Summer Sale campaign by ROAS and show me what the top three say.\"\n- \"Break down my TikTok Ads spend by placement for the last 30 days.\"\n\nWhat ChatGPT can read through this plugin\nAd platforms: Google Ads, Meta Ads (Facebook and Instagram) and TikTok Ads.\nData: campaigns, ad groups, ad sets, ads and creatives, plus spend, impressions, clicks, conversions, conversion value, impression share, reach, frequency and video metrics, with period comparisons and breakdowns by date, device, placement, age or gender.\n\nEvery answer states the account, currency, date range, timezone and attribution model behind the numbers, and names anything that could not be retrieved rather than filling the gap.\n\nHow to set it up\nSign in to Adstudio, connect your ad accounts once, then authorize ChatGPT with OAuth. Access follows your own Adstudio workspaces and your role in them, and every request names one workspace, platform and account explicitly. You choose the access level under Settings > MCP, Read only or Read and write, and you can switch the connection off at any time, which ends access for every connected client.\n\nAdstudio itself is a workspace for advertising teams, with dashboards, custom reports, alerts, notes and tasks around the same accounts at useadstudio.com.",
+        "developerName": "ENES OZTURK LTD",
+        "category": "Data & Analytics",
+        "capabilities": [
+          "Performance questions across connected ad accounts",
+          "Period-over-period comparisons",
+          "Breakdowns by date, device, placement, age or gender",
+          "Campaign, ad group, ad set and ad structure",
+          "Ad copy and creative review",
+          "Account, currency, date range and attribution on every answer"
+        ],
+        "websiteURL": "https://useadstudio.com",
+        "supportURL": "https://useadstudio.com/support",
+        "privacyPolicyURL": "https://useadstudio.com/privacy-policy",
+        "termsOfServiceURL": "https://useadstudio.com/terms-of-service",
+        "defaultPrompt": [
+          "How did my Google Ads campaigns perform last week compared with the week before?",
+          "Why did the CPA of my Brand Search campaign go up in the last 14 days?",
+          "Rank the ads in my Summer Sale campaign by ROAS and show me what the top three say."
+        ],
+        "brandColor": "#1372FF",
+        "brandColorDark": "#6FA8FF",
+        "composerIcon": "./assets/icon.png",
+        "logo": "./assets/logo.png"
+      },
+      "review": {
+        "test_cases": {
+          "positive": [
+            {
+              "description": "Discover connected ad accounts",
+              "prompt": "List my ad accounts in Adstudio.",
+              "tools_triggered": "list_accounts",
+              "expected_behavior": "Returns the \"Adstudio ChatGPT Test\" workspace with its Google Ads account (2829822056, \"Adstudio\") and Meta Ads account (1619824365699133, \"Adstudio Ads\"), each with the access level enabled for that platform. No performance data is fetched yet."
+            },
+            {
+              "description": "Inspect what can be queried for a specific account",
+              "prompt": "What metrics, levels and breakdowns can I query for the Google Ads account in my Adstudio ChatGPT Test workspace?",
+              "tools_triggered": "list_accounts, describe_capabilities",
+              "expected_behavior": "Selects the Google Ads account explicitly and returns its supported levels (account, campaign, ad_group, ad), metrics (impressions, clicks, spend, conversions, conversion_value, impression share), breakdowns, filters and limits. Currency and timezone are not guessed."
+            },
+            {
+              "description": "Historical performance report",
+              "prompt": "Show me the daily spend and clicks of my Google Ads account from June 26 to July 13, 2026, and tell me which campaign drove that spend.",
+              "tools_triggered": "list_accounts, describe_capabilities, query_performance",
+              "expected_behavior": "Daily rows for 2026-06-26 to 2026-07-13, then campaign rows. Reports about 1,650 TRY spend, roughly 5,000 impressions, 409 clicks and 1 conversion, all from campaign \"adstudio_search_data\", with provenance (TRY, Europe/Istanbul, attribution note). No invented numbers."
+            },
+            {
+              "description": "Browse the campaign hierarchy and status",
+              "prompt": "List the campaigns in my Meta Ads account with their status, and show the ad sets under the awareness campaign.",
+              "tools_triggered": "list_accounts, get_entities",
+              "expected_behavior": "Returns two PAUSED campaigns, \"Adstudio_Awareness_Data\" (OUTCOME_AWARENESS) and \"Adstudio_Engagement_Data\" (OUTCOME_ENGAGEMENT), then lists the ad set under the awareness campaign using its id as parentId. Structure only, no metrics."
+            },
+            {
+              "description": "Review ad creatives and messaging",
+              "prompt": "Show me the ad creatives in my Meta Ads account and summarize what the copy says.",
+              "tools_triggered": "list_accounts, get_creatives",
+              "expected_behavior": "Returns two photo ads with campaign, ad set, status (CAMPAIGN_PAUSED), media and copy. Summarizes the engagement ad's text (run digital marketing across Google, Meta and TikTok by talking to any AI model) and notes that the awareness ad has no text. No performance numbers."
+            }
+          ],
+          "negative": [
+            {
+              "description": "Generic advertising advice that needs no account data",
+              "prompt": "What is a good ROAS target for an e-commerce brand running Meta ads?",
+              "expected_behavior": "Answers from general knowledge and does not call any Adstudio tool, because no connected-account data is needed."
+            },
+            {
+              "description": "Change requested through tools that only read",
+              "prompt": "Increase the daily budget of my Brand Search campaign to $200 and pause the underperforming ad groups.",
+              "expected_behavior": "Explains that the five tools exposed here (list_accounts, describe_capabilities, query_performance, get_entities, get_creatives) only read, makes no change, and points the user to the Adstudio app for budget and status edits."
+            },
+            {
+              "description": "Data outside the connected accounts",
+              "prompt": "Pull last month's Google Ads performance for a competitor's account that is not connected to my workspace.",
+              "expected_behavior": "Explains that only the workspaces and accounts returned by list_accounts are reachable, does not guess or fabricate an account id, and does not call query_performance."
+            }
+          ]
+        },
+        "commerce": false,
+        "commerce_description": "Adstudio does not sell products or process payments inside ChatGPT. Subscriptions are purchased on useadstudio.com.",
+        "demo_recording_url": "https://dataonmarketing.s3.eu-central-1.amazonaws.com/images/adstudio-mcp-demo.mp4"
+      },
+      "publication": {
+        "release_notes": "Adstudio comes to ChatGPT.\n\nConnect the Google Ads, Meta Ads and TikTok Ads accounts you manage in Adstudio, then ask for the numbers in plain language: spend, conversions, campaign structure and creatives, with period comparisons and breakdowns by date, device, placement, age or gender.\n\nEvery answer names the account, currency, date range, timezone and attribution model behind it, and says when something could not be retrieved.\n\nThree skills are included: an account performance review, a campaign diagnosis and a creative audit.",
+        "translations": {
+          "tr-TR": {
+            "subtitle": "Reklam hesaplar\u0131n\u0131za sorun",
+            "description": "Adstudio, ChatGPT'nin i\u00e7inde reklam raporlamas\u0131 ve analizidir. Adstudio'da ba\u011flad\u0131\u011f\u0131n\u0131z Google Ads, Meta Ads ve TikTok Ads hesaplar\u0131ndaki rakamlar\u0131 sorars\u0131n\u0131z: harcama, d\u00f6n\u00fc\u015f\u00fcm, kampanya yap\u0131s\u0131 ve kreatifler. Her reklam panelini tek tek a\u00e7\u0131p ayn\u0131 d\u0131\u015fa aktarmay\u0131 yeniden kurman\u0131za gerek kalmaz.\n\nNeler sorabilirsiniz\n- \"Google Ads kampanyalar\u0131m ge\u00e7en hafta bir \u00f6nceki haftaya g\u00f6re nas\u0131l performans g\u00f6sterdi?\"\n- \"Brand Search kampanyam\u0131n CPA's\u0131 son 14 g\u00fcnde neden y\u00fckseldi?\"\n- \"Bu ay hangi Meta kampanyalar\u0131 d\u00f6n\u00fc\u015f\u00fcm getirmeden b\u00fct\u00e7e harcad\u0131?\"\n- \"Summer Sale kampanyamdaki reklamlar\u0131 ROAS'a g\u00f6re s\u0131rala ve ilk \u00fc\u00e7\u00fcn\u00fcn metnini g\u00f6ster.\"\n\nChatGPT'nin bu eklenti \u00fczerinden okuyabildikleri\nReklam platformlar\u0131: Google Ads, Meta Ads (Facebook ve Instagram) ve TikTok Ads.\nVeri: kampanyalar, reklam gruplar\u0131, reklam setleri, reklamlar ve kreatifler; harcama, g\u00f6sterim, t\u0131klama, d\u00f6n\u00fc\u015f\u00fcm, d\u00f6n\u00fc\u015f\u00fcm de\u011feri, g\u00f6sterim pay\u0131, eri\u015fim, s\u0131kl\u0131k ve video metrikleri; d\u00f6nem kar\u015f\u0131la\u015ft\u0131rmalar\u0131 ve tarih, cihaz, yerle\u015fim, ya\u015f veya cinsiyet k\u0131r\u0131l\u0131mlar\u0131.\n\nHer yan\u0131t hesab\u0131, para birimini, tarih aral\u0131\u011f\u0131n\u0131, saat dilimini ve at\u0131f modelini belirtir; al\u0131namayan bir \u015fey varsa bo\u015flu\u011fu doldurmak yerine ad\u0131n\u0131 verir.\n\nKurulum\nAdstudio'ya giri\u015f yap\u0131n, hesaplar\u0131n\u0131z\u0131 bir kez ba\u011flay\u0131n, sonra ChatGPT'yi OAuth ile yetkilendirin. Eri\u015fim kendi \u00e7al\u0131\u015fma alanlar\u0131n\u0131z ve oradaki rol\u00fcn\u00fczle s\u0131n\u0131rl\u0131d\u0131r; her istek tek bir \u00e7al\u0131\u015fma alan\u0131n\u0131, platformu ve hesab\u0131 a\u00e7\u0131k\u00e7a adland\u0131r\u0131r. Eri\u015fim seviyesini Ayarlar > MCP'den se\u00e7ersiniz: yaln\u0131zca okuma ya da okuma ve yazma. Ba\u011flant\u0131y\u0131 istedi\u011finiz an kapatabilirsiniz; bu, ba\u011fl\u0131 t\u00fcm istemcilerin eri\u015fimini sonland\u0131r\u0131r."
+          },
+          "de-DE": {
+            "subtitle": "Frag deine Werbekonten",
+            "description": "Adstudio ist Werbereporting und -analyse in ChatGPT. Frag nach den Zahlen aus den Google-Ads-, Meta-Ads- und TikTok-Ads-Konten, die du in Adstudio verbindest \u2014 Ausgaben, Conversions, Kampagnenstruktur und Creatives \u2014 statt jeden Werbeanzeigenmanager zu \u00f6ffnen und denselben Export neu zu bauen.\n\nWas du fragen kannst\n- \"Wie haben meine Google-Ads-Kampagnen letzte Woche im Vergleich zur Vorwoche abgeschnitten?\"\n- \"Warum ist der CPA meiner Brand-Search-Kampagne in den letzten 14 Tagen gestiegen?\"\n- \"Welche Meta-Kampagnen haben diesen Monat Budget ohne Conversions ausgegeben?\"\n- \"Sortiere die Anzeigen meiner Summer-Sale-Kampagne nach ROAS und zeig mir den Text der Top 3.\"\n\nWas ChatGPT \u00fcber dieses Plugin lesen kann\nWerbeplattformen: Google Ads, Meta Ads (Facebook und Instagram) und TikTok Ads.\nDaten: Kampagnen, Anzeigengruppen, Anzeigensets, Anzeigen und Creatives sowie Ausgaben, Impressionen, Klicks, Conversions, Conversion-Wert, Impression Share, Reichweite, Frequenz und Video-Metriken, mit Zeitraumvergleichen und Aufschl\u00fcsselungen nach Datum, Ger\u00e4t, Platzierung, Alter oder Geschlecht.\n\nJede Antwort nennt Konto, W\u00e4hrung, Zeitraum, Zeitzone und Attributionsmodell und benennt, was nicht abgerufen werden konnte, statt die L\u00fccke zu f\u00fcllen.\n\nEinrichtung\nBei Adstudio anmelden, Konten einmalig verbinden, dann ChatGPT per OAuth autorisieren. Der Zugriff folgt deinen eigenen Workspaces und deiner Rolle darin. Die Zugriffsstufe w\u00e4hlst du unter Einstellungen > MCP, und du kannst die Verbindung jederzeit abschalten."
+          },
+          "ja-JP": {
+            "subtitle": "\u5e83\u544a\u30a2\u30ab\u30a6\u30f3\u30c8\u306b\u8cea\u554f",
+            "description": "Adstudio \u306f\u3001ChatGPT \u306e\u4e2d\u3067\u884c\u3046\u5e83\u544a\u30ec\u30dd\u30fc\u30c8\u3068\u5206\u6790\u3067\u3059\u3002Adstudio \u3067\u63a5\u7d9a\u3057\u305f Google \u5e83\u544a\u30fbMeta \u5e83\u544a\u30fbTikTok \u5e83\u544a\u306e\u30a2\u30ab\u30a6\u30f3\u30c8\u306b\u3064\u3044\u3066\u3001\u8cbb\u7528\u3001\u30b3\u30f3\u30d0\u30fc\u30b8\u30e7\u30f3\u3001\u30ad\u30e3\u30f3\u30da\u30fc\u30f3\u69cb\u6210\u3001\u30af\u30ea\u30a8\u30a4\u30c6\u30a3\u30d6\u3092\u305f\u305a\u306d\u308b\u3060\u3051\u3002\u5404\u5e83\u544a\u30de\u30cd\u30fc\u30b8\u30e3\u30fc\u3092\u958b\u3044\u3066\u540c\u3058\u30a8\u30af\u30b9\u30dd\u30fc\u30c8\u3092\u4f5c\u308a\u76f4\u3059\u5fc5\u8981\u306f\u3042\u308a\u307e\u305b\u3093\u3002\n\n\u3053\u3093\u306a\u8cea\u554f\u304c\u3067\u304d\u307e\u3059\n- \u300c\u5148\u9031\u306e Google \u5e83\u544a\u30ad\u30e3\u30f3\u30da\u30fc\u30f3\u306e\u6210\u679c\u3092\u3001\u524d\u9031\u3068\u6bd4\u3079\u3066\u6559\u3048\u3066\u300d\n- \u300cBrand Search \u30ad\u30e3\u30f3\u30da\u30fc\u30f3\u306e CPA \u304c\u76f4\u8fd1 14 \u65e5\u9593\u3067\u4e0a\u304c\u3063\u305f\u7406\u7531\u306f\uff1f\u300d\n- \u300c\u4eca\u6708\u3001\u30b3\u30f3\u30d0\u30fc\u30b8\u30e7\u30f3\u304c\u306a\u3044\u307e\u307e\u4e88\u7b97\u3092\u4f7f\u3063\u305f Meta \u30ad\u30e3\u30f3\u30da\u30fc\u30f3\u306f\uff1f\u300d\n- \u300cSummer Sale \u30ad\u30e3\u30f3\u30da\u30fc\u30f3\u306e\u5e83\u544a\u3092 ROAS \u9806\u306b\u4e26\u3079\u3066\u3001\u4e0a\u4f4d 3 \u4ef6\u306e\u6587\u9762\u3092\u898b\u305b\u3066\u300d\n\n\u3053\u306e\u30d7\u30e9\u30b0\u30a4\u30f3\u3067 ChatGPT \u304c\u8aad\u307f\u53d6\u308c\u308b\u3082\u306e\n\u5e83\u544a\u30d7\u30e9\u30c3\u30c8\u30d5\u30a9\u30fc\u30e0\uff1aGoogle \u5e83\u544a\u3001Meta \u5e83\u544a\uff08Facebook\u30fbInstagram\uff09\u3001TikTok \u5e83\u544a\u3002\n\u30c7\u30fc\u30bf\uff1a\u30ad\u30e3\u30f3\u30da\u30fc\u30f3\u3001\u5e83\u544a\u30b0\u30eb\u30fc\u30d7\u3001\u5e83\u544a\u30bb\u30c3\u30c8\u3001\u5e83\u544a\u3001\u30af\u30ea\u30a8\u30a4\u30c6\u30a3\u30d6\u306b\u52a0\u3048\u3001\u8cbb\u7528\u3001\u30a4\u30f3\u30d7\u30ec\u30c3\u30b7\u30e7\u30f3\u3001\u30af\u30ea\u30c3\u30af\u3001\u30b3\u30f3\u30d0\u30fc\u30b8\u30e7\u30f3\u3001\u30b3\u30f3\u30d0\u30fc\u30b8\u30e7\u30f3\u5024\u3001\u30a4\u30f3\u30d7\u30ec\u30c3\u30b7\u30e7\u30f3\u30b7\u30a7\u30a2\u3001\u30ea\u30fc\u30c1\u3001\u30d5\u30ea\u30fc\u30af\u30a8\u30f3\u30b7\u30fc\u3001\u52d5\u753b\u6307\u6a19\u3002\u671f\u9593\u6bd4\u8f03\u3084\u3001\u65e5\u4ed8\u30fb\u30c7\u30d0\u30a4\u30b9\u30fb\u914d\u7f6e\u30fb\u5e74\u9f62\u30fb\u6027\u5225\u3054\u3068\u306e\u5185\u8a33\u306b\u3082\u5bfe\u5fdc\u3057\u307e\u3059\u3002\n\n\u3059\u3079\u3066\u306e\u56de\u7b54\u306b\u30a2\u30ab\u30a6\u30f3\u30c8\u3001\u901a\u8ca8\u3001\u671f\u9593\u3001\u30bf\u30a4\u30e0\u30be\u30fc\u30f3\u3001\u30a2\u30c8\u30ea\u30d3\u30e5\u30fc\u30b7\u30e7\u30f3\u30e2\u30c7\u30eb\u3092\u660e\u793a\u3057\u3001\u53d6\u5f97\u3067\u304d\u306a\u304b\u3063\u305f\u9805\u76ee\u306f\u88dc\u308f\u305a\u306b\u305d\u306e\u65e8\u3092\u793a\u3057\u307e\u3059\u3002\n\n\u8a2d\u5b9a\u65b9\u6cd5\nAdstudio \u306b\u30b5\u30a4\u30f3\u30a4\u30f3\u3057\u3001\u30a2\u30ab\u30a6\u30f3\u30c8\u3092\u4e00\u5ea6\u63a5\u7d9a\u3057\u3066\u304b\u3089\u3001OAuth \u3067 ChatGPT \u3092\u8a8d\u53ef\u3057\u307e\u3059\u3002\u30a2\u30af\u30bb\u30b9\u7bc4\u56f2\u306f\u3054\u81ea\u8eab\u306e\u30ef\u30fc\u30af\u30b9\u30da\u30fc\u30b9\u3068\u305d\u306e\u6a29\u9650\u306b\u9650\u3089\u308c\u307e\u3059\u3002\u30a2\u30af\u30bb\u30b9\u30ec\u30d9\u30eb\u306f\u8a2d\u5b9a > MCP \u3067\u9078\u629e\u3067\u304d\u3001\u63a5\u7d9a\u306f\u3044\u3064\u3067\u3082\u505c\u6b62\u3067\u304d\u307e\u3059\u3002"
+          },
+          "es-ES": {
+            "subtitle": "Pregunta a tus anuncios",
+            "description": "Adstudio es informes y an\u00e1lisis de publicidad dentro de ChatGPT. Pide las cifras de las cuentas de Google Ads, Meta Ads y TikTok Ads que conectas en Adstudio \u2014inversi\u00f3n, conversiones, estructura de campa\u00f1as y creatividades\u2014 en lugar de abrir cada gestor de anuncios y rehacer la misma exportaci\u00f3n.\n\nQu\u00e9 puedes preguntar\n- \"\u00bfC\u00f3mo rindieron mis campa\u00f1as de Google Ads la semana pasada frente a la anterior?\"\n- \"\u00bfPor qu\u00e9 subi\u00f3 el CPA de mi campa\u00f1a Brand Search en los \u00faltimos 14 d\u00edas?\"\n- \"\u00bfQu\u00e9 campa\u00f1as de Meta gastaron presupuesto sin convertir este mes?\"\n- \"Ordena los anuncios de mi campa\u00f1a Summer Sale por ROAS y mu\u00e9strame el texto de los tres primeros.\"\n\nQu\u00e9 puede leer ChatGPT con este plugin\nPlataformas: Google Ads, Meta Ads (Facebook e Instagram) y TikTok Ads.\nDatos: campa\u00f1as, grupos de anuncios, conjuntos de anuncios, anuncios y creatividades, adem\u00e1s de inversi\u00f3n, impresiones, clics, conversiones, valor de conversi\u00f3n, cuota de impresiones, alcance, frecuencia y m\u00e9tricas de v\u00eddeo, con comparaciones de periodos y desgloses por fecha, dispositivo, posicionamiento, edad o g\u00e9nero.\n\nCada respuesta indica la cuenta, la moneda, el rango de fechas, la zona horaria y el modelo de atribuci\u00f3n detr\u00e1s de las cifras, y nombra lo que no se pudo obtener en lugar de rellenar el hueco.\n\nC\u00f3mo configurarlo\nInicia sesi\u00f3n en Adstudio, conecta tus cuentas una vez y autoriza ChatGPT con OAuth. El acceso sigue tus propios espacios de trabajo y tu rol en ellos, y cada solicitud nombra un espacio, una plataforma y una cuenta de forma expl\u00edcita. Eliges el nivel de acceso en Ajustes > MCP y puedes desactivar la conexi\u00f3n cuando quieras."
+          },
+          "fr-FR": {
+            "subtitle": "Interrogez vos comptes pub",
+            "description": "Adstudio, c'est le reporting et l'analyse publicitaires dans ChatGPT. Demandez les chiffres des comptes Google Ads, Meta Ads et TikTok Ads que vous connectez dans Adstudio \u2014 d\u00e9penses, conversions, structure des campagnes et cr\u00e9ations \u2014 au lieu d'ouvrir chaque gestionnaire de publicit\u00e9s et de refaire le m\u00eame export.\n\nCe que vous pouvez demander\n- \u00ab Comment mes campagnes Google Ads ont-elles perform\u00e9 la semaine derni\u00e8re par rapport \u00e0 la pr\u00e9c\u00e9dente ? \u00bb\n- \u00ab Pourquoi le CPA de ma campagne Brand Search a-t-il augment\u00e9 ces 14 derniers jours ? \u00bb\n- \u00ab Quelles campagnes Meta ont d\u00e9pens\u00e9 sans convertir ce mois-ci ? \u00bb\n- \u00ab Classe les annonces de ma campagne Summer Sale par ROAS et montre-moi le texte des trois premi\u00e8res. \u00bb\n\nCe que ChatGPT peut lire via ce plugin\nPlateformes : Google Ads, Meta Ads (Facebook et Instagram) et TikTok Ads.\nDonn\u00e9es : campagnes, groupes d'annonces, ensembles de publicit\u00e9s, annonces et cr\u00e9ations, ainsi que d\u00e9penses, impressions, clics, conversions, valeur de conversion, taux d'impressions, couverture, r\u00e9p\u00e9tition et m\u00e9triques vid\u00e9o, avec comparaisons de p\u00e9riodes et ventilations par date, appareil, placement, \u00e2ge ou genre.\n\nChaque r\u00e9ponse pr\u00e9cise le compte, la devise, la p\u00e9riode, le fuseau horaire et le mod\u00e8le d'attribution derri\u00e8re les chiffres, et nomme ce qui n'a pas pu \u00eatre r\u00e9cup\u00e9r\u00e9 plut\u00f4t que de combler le vide.\n\nMise en place\nConnectez-vous \u00e0 Adstudio, reliez vos comptes une fois, puis autorisez ChatGPT via OAuth. L'acc\u00e8s suit vos propres espaces de travail et votre r\u00f4le, et chaque requ\u00eate nomme explicitement un espace, une plateforme et un compte. Vous choisissez le niveau d'acc\u00e8s dans Param\u00e8tres > MCP et pouvez couper la connexion \u00e0 tout moment."
+          },
+          "pt-BR": {
+            "subtitle": "Pergunte aos seus an\u00fancios",
+            "description": "O Adstudio \u00e9 relat\u00f3rio e an\u00e1lise de publicidade dentro do ChatGPT. Pe\u00e7a os n\u00fameros das contas de Google Ads, Meta Ads e TikTok Ads que voc\u00ea conecta no Adstudio \u2014 investimento, convers\u00f5es, estrutura de campanhas e criativos \u2014 em vez de abrir cada gerenciador de an\u00fancios e refazer a mesma exporta\u00e7\u00e3o.\n\nO que voc\u00ea pode perguntar\n- \"Como minhas campanhas do Google Ads performaram na semana passada em rela\u00e7\u00e3o \u00e0 anterior?\"\n- \"Por que o CPA da minha campanha Brand Search subiu nos \u00faltimos 14 dias?\"\n- \"Quais campanhas do Meta gastaram verba sem converter neste m\u00eas?\"\n- \"Ordene os an\u00fancios da minha campanha Summer Sale por ROAS e mostre o texto dos tr\u00eas primeiros.\"\n\nO que o ChatGPT pode ler com este plugin\nPlataformas: Google Ads, Meta Ads (Facebook e Instagram) e TikTok Ads.\nDados: campanhas, grupos de an\u00fancios, conjuntos de an\u00fancios, an\u00fancios e criativos, al\u00e9m de investimento, impress\u00f5es, cliques, convers\u00f5es, valor de convers\u00e3o, parcela de impress\u00f5es, alcance, frequ\u00eancia e m\u00e9tricas de v\u00eddeo, com compara\u00e7\u00f5es de per\u00edodos e recortes por data, dispositivo, posicionamento, idade ou g\u00eanero.\n\nCada resposta informa a conta, a moeda, o per\u00edodo, o fuso hor\u00e1rio e o modelo de atribui\u00e7\u00e3o por tr\u00e1s dos n\u00fameros, e aponta o que n\u00e3o p\u00f4de ser obtido em vez de preencher a lacuna.\n\nComo configurar\nEntre no Adstudio, conecte suas contas uma vez e autorize o ChatGPT com OAuth. O acesso segue seus pr\u00f3prios workspaces e seu papel neles, e cada requisi\u00e7\u00e3o nomeia explicitamente um workspace, uma plataforma e uma conta. Voc\u00ea escolhe o n\u00edvel de acesso em Configura\u00e7\u00f5es > MCP e pode desligar a conex\u00e3o a qualquer momento."
+          }
+        }
+      }
+    }
+  }
+}
