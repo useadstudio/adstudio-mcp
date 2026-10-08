@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "adstudio": {
+      "type": "http",
+      "url": "https://useadstudio.com/api/mcp"
+    }
+  }
+}
